@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>Kavita.Importer</RootNamespace>
+        <AssemblyName>Kavita.Importer</AssemblyName>
+        <Company>kavitareader.com</Company>
+        <Product>Kavita Importer</Product>
+        <Version>0.1.0</Version>
+        <!-- These warnings come from packages that are transitive dependencies of the referenced API project
+             (AutoMapper/MailKit/Newtonsoft/SharpCompress/SQLite...). They are not ours to fix, so keep the
+             CLI output clean. -->
+        <NoWarn>$(NoWarn);NU1902;NU1903;MSB3277</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Kavita.Services pulls in the whole split stack (Kavita.API interfaces, Kavita.Database,
+             Kavita.Models, Kavita.Common) transitively, giving the Importer access to the concrete
+             service implementations it needs to instantiate. -->
+        <ProjectReference Include="..\Kavita.Services\Kavita.Services.csproj" />
+        <ProjectReference Include="..\Kavita.Common\Kavita.Common.csproj" />
+    </ItemGroup>
+
+</Project>

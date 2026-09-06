@@ -112,6 +112,41 @@ Package()
     ProgressEnd "Creating $runtime Package"
 }
 
+# 发布 Kavita.Importer: self-contained 单文件(参考 publish-release.sh 的参数约定)
+PackageImporter()
+{
+    local runtime="$1"
+    local lOutputFolder=../_output/importer-"$runtime"
+    local exeSuffix=""
+    if [[ "$runtime" == win-* ]]; then
+        exeSuffix=".exe"
+    fi
+
+    ProgressStart "Creating $runtime Importer Package (single-file)"
+
+    cd Kavita.Importer || exit
+
+    echo "Publishing Kavita.Importer ($runtime, single-file)"
+    dotnet publish Kavita.Importer.csproj -c Release --self-contained -r "$runtime" \
+        -p:PublishSingleFile=true \
+        -p:IncludeNativeLibrariesForSelfExtract=true \
+        -p:EnableCompressionInSingleFile=true \
+        -p:DebugType=none -p:DebugSymbols=false \
+        -o "$lOutputFolder"
+
+    echo "Copying LICENSE"
+    cp ../LICENSE "$lOutputFolder"/LICENSE
+
+    echo "Single-file Kavita.Importer for $runtime:"
+    ls -la "$lOutputFolder"/Kavita.Importer*
+
+    cd .. || exit
+
+    ProgressEnd "Creating $runtime Importer Package"
+}
+
+# build.sh 支持的全部 Server RID(与 Importer 单文件输出一致)
+TARGET_PLATFORMS=(win-x64 win-x86 linux-x64 linux-arm linux-arm64 linux-musl-x64 osx-x64 osx-arm64)
 
 RID="$1"
 
@@ -123,23 +158,16 @@ dir=$PWD
 
 if [[ -z "$RID" ]];
 then
-    Package "win-x64"
-    cd "$dir"
-    Package "win-x86"
-    cd "$dir"
-    Package "linux-x64"
-    cd "$dir"
-    Package "linux-arm"
-    cd "$dir"
-    Package "linux-arm64"
-    cd "$dir"
-    Package "linux-musl-x64"
-    cd "$dir"
-    Package "osx-x64"
-    cd "$dir"
-    Package "osx-arm64"
-    cd "$dir"
+    for runtime in "${TARGET_PLATFORMS[@]}";
+    do
+        Package "$runtime"
+        cd "$dir"
+        PackageImporter "$runtime"
+        cd "$dir"
+    done
 else
     Package "$RID"
+    cd "$dir"
+    PackageImporter "$RID"
     cd "$dir"
 fi

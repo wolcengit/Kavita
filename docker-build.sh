@@ -1,6 +1,11 @@
 #! /bin/bash
 set -e
 
+# 镜像名称与 tag 参数化, 允许外部传入:
+#   KAVITA_IMAGE=wolcen/kavita \
+#   KAVITA_TAG=$(date +%Y%m%d) ./docker-build.sh
+KAVITA_IMAGE="${KAVITA_IMAGE:-kizaing/kavita}"
+KAVITA_TAG="${KAVITA_TAG:-nightly}"
 outputFolder='_output'
 
 ProgressStart()
@@ -99,5 +104,5 @@ Build "linux-arm64"
 Package "linux-arm64"
 cd "$dir"
 
-#Builds Docker images
-docker buildx build -t kizaing/kavita:nightly --platform linux/amd64,linux/arm/v7,linux/arm64 . --push
+#Builds Docker images (image name & tag from KAVITA_IMAGE / KAVITA_TAG)
+docker buildx build -t "${KAVITA_IMAGE}:${KAVITA_TAG}" --platform linux/amd64,linux/arm/v7,linux/arm64 . --push
