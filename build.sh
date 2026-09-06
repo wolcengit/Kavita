@@ -137,6 +137,13 @@ PackageImporter()
     echo "Copying LICENSE"
     cp ../LICENSE "$lOutputFolder"/LICENSE
 
+    # SQLitePCLRaw.lib.e_sqlite3 在 linux/macos 的 runtimes/<rid>/native 下同时提供
+    # libe_sqlite3.so(动态库) 与 libe_sqlite3.a(静态库)。self-contained 发布会把该目录
+    # 摊平复制到输出根，而单文件打包器只识别可加载的 native library(.so)，.a 既不会被
+    # 打进 bundle 也不会被清理，因此残留。运行时完全不需要，直接删除。
+    echo "Removing static native libs not needed at runtime"
+    rm -f "$lOutputFolder"/libe_sqlite3.a
+
     echo "Single-file Kavita.Importer for $runtime:"
     ls -la "$lOutputFolder"/Kavita.Importer*
 
