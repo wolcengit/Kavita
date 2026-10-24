@@ -1,17 +1,33 @@
 #! /bin/bash
 set -e
 
+# 非交互 bash 不会自动加载 .bashrc；显式加载 nvm 以便脚本调用 node/npm。
+NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+if [ ! -s "$NVM_DIR/nvm.sh" ] && [ -s "$HOME/.config/nvm/nvm.sh" ]; then
+    NVM_DIR="$HOME/.config/nvm"
+fi
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+    . "$NVM_DIR/nvm.sh"
+fi
+
+# Angular 22 requires Node >= 24.15.0.
+if command -v nvm >/dev/null 2>&1; then
+    nvm use 24 >/dev/null 2>&1 || true
+fi
+
 outputFolder='_output'
 
 CheckRequirements()
 {
     if ! command -v npm &> /dev/null
     then
-        echo "Warning!!! npm not found, it is required for building Kavita!"
+        echo "Error: npm not found. Install Node.js or set NVM_DIR to a directory containing nvm.sh." >&2
+        exit 1
     fi
     if ! command -v dotnet &> /dev/null
     then
-        echo "Warning!!! dotnet not found, it is required for building Kavita!"
+        echo "Error: dotnet not found, it is required for building Kavita!" >&2
+        exit 1
     fi
 }
 

@@ -8,6 +8,9 @@ ARG TARGETPLATFORM
 #Move the output files to where they need to be
 RUN mkdir /files
 COPY _output/*.tar.gz /files/
+COPY _output/importer-linux-x64 /files/importers/importer-linux-x64
+COPY _output/importer-linux-arm /files/importers/importer-linux-arm
+COPY _output/importer-linux-arm64 /files/importers/importer-linux-arm64
 COPY UI/Web/dist/browser /files/wwwroot
 COPY copy_runtime.sh /copy_runtime.sh
 
@@ -19,6 +22,7 @@ RUN chmod +x /Kavita/Kavita
 FROM ubuntu:noble
 
 COPY --from=copytask /Kavita /kavita
+COPY --from=copytask /files/importers/ /kavita/
 COPY --from=copytask /files/wwwroot /kavita/wwwroot
 COPY Kavita.Server/config/appsettings.json /tmp/config/appsettings.json
 
